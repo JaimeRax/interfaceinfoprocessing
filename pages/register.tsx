@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
+import Swal from "sweetalert2";
 import styles from "../styles/Login.module.css";
 
 function Register() {
@@ -25,11 +26,26 @@ function Register() {
 
       const data = await res.json();
       if (res.status === 201) {
-        setSuccess("Usuario registrado exitosamente");
-        // Redirigir al login después del registro exitoso
-        router.push("/login");
+        Swal.fire({
+          icon: "success",
+          title: "Usuario registrado exitosamente",
+          showConfirmButton: false,
+          timer: 2000, // Mostrar durante 3 segundos
+        }).then(() => {
+          // Redirigir al login después de que SweetAlert se cierre
+          router.push("/login");
+        });
       } else {
         setError(data.error || "Error en el registro");
+
+        Swal.fire({
+          icon: "error",
+          title: "Ocurrio un error al registrar al usuario.",
+          showConfirmButton: false,
+          timer: 2000,
+        }).then(() => {
+          router.push("/register");
+        });
       }
     } catch (err) {
       setError("Error al conectar con el servidor");
