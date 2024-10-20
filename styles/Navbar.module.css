@@ -1,0 +1,27 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background-color: #333;
+  color: white;
+}
+
+.logo {
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.menu {
+  display: flex;
+  gap: 20px;
+}
+
+.menuItem {
+  cursor: pointer;
+  color: white;
+}
+
+.menuItem:hover {
+  color: #0070f3;
+}
+
