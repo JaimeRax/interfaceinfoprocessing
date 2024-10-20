@@ -9,6 +9,14 @@
   margin-bottom: 20px;
 }
 
+.fileInput {
+  width: 600px; /* Ancho igual al canvas */
+  padding: 10px;
+  border: 2px solid #ccc;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
 .canvas {
   border: 1px solid #ccc;
   margin: 20px 0;
@@ -20,21 +28,26 @@
   gap: 10px; /* Espacio entre botones */
 }
 
-.actionButton {
+.actionButton, .dibujarButton, .cancelButton {
   padding: 10px 20px;
-  background-color: #4CAF50; /* Color verde para el botón */
-  color: white; /* Texto blanco */
+  background-color: #4CAF50; /* Color verde para los botones */
+  color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-weight: bold;  
 }
 
-.dibujarButton {
-  padding: 10px 20px;
-  background-color: #008CBA; /* Color azul para el botón Dibujar */
-  color: white; /* Texto blanco */
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+.dibujarButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  background-color: #f44336; /* Color rojo para el botón de cancelar */
+}
+
+.actionButton {
+  background-color: #f49221; /* Color rojo para el botón de cancelar */
 }
 
