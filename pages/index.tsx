@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 
 function index() {
@@ -6,7 +6,7 @@ function index() {
 
   useEffect(() => {
     // Redirige al usuario a la página de inicio de sesión
-    router.push("/screens/register");
+    router.push("/login");
   }, [router]);
 
   return (
@@ -15,16 +15,5 @@ function index() {
     </div>
   );
 }
-//   const [message, setMessage] = useState("loading");
-//   useEffect(() => {
-//     fetch("http://localhost:5001/")
-//       .then((response) => response.json())
-//       .then((data) => {
-//         setMessage(data.message);
-//       });
-//   }, []);
-//
-//   return <div>{message}</div>;
-// }
 
 export default index;

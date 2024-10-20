@@ -1,18 +1,21 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
-// import styles from "../styles/login.css";
+import styles from "../styles/Login.module.css";
 
-function register() {
+function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const router = useRouter();
 
-  const handleRegister = async (e) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(""); // Resetea el error
+    setSuccess(""); // Resetea el éxito
+
     try {
-      const res = await fetch("http://localhost:8080/register", {
+      const res = await fetch("http://localhost:5001/api/login/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -24,7 +27,7 @@ function register() {
       if (res.status === 201) {
         setSuccess("Usuario registrado exitosamente");
         // Redirigir al login después del registro exitoso
-        router.push("/");
+        router.push("/login");
       } else {
         setError(data.error || "Error en el registro");
       }
@@ -72,4 +75,4 @@ function register() {
   );
 }
 
-export default register;
+export default Register;
