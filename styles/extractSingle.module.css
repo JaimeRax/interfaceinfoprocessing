@@ -1,0 +1,40 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.canvas {
+  border: 1px solid #ccc;
+  margin: 20px 0;
+}
+
+.buttonContainer {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px; /* Espacio entre botones */
+}
+
+.actionButton {
+  padding: 10px 20px;
+  background-color: #4CAF50; /* Color verde para el botón */
+  color: white; /* Texto blanco */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.dibujarButton {
+  padding: 10px 20px;
+  background-color: #008CBA; /* Color azul para el botón Dibujar */
+  color: white; /* Texto blanco */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
