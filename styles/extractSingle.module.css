@@ -91,6 +91,41 @@
   gap: 10px;
 }
 
+.downloadContainer {
+  background-color: #f0f8ff;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #00bfff;
+  display: inline-flex;
+  align-items: center;
+}
+
+.downloadContainer a {
+  text-decoration: none;
+  font-size: 16px;
+  color: #0073e6;
+  font-weight: bold;
+}
+
+.downloadContainer a:hover {
+  color: #004080;
+}
+
+.downloadContainer i {
+  margin-right: 10px;
+  color: #0073e6;
+  font-size: 18px;
+}
+
+.jsonResult {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-family: monospace;
+  white-space: pre-wrap;
+}
+
 .actionButton, .dibujarButton, .cancelButton, .sendButton {
   padding: 10px 20px;
   background-color: #4CAF50; 

@@ -12,8 +12,9 @@ const ExtactSingle = () => {
   >([]);
   const [annotations, setAnnotations] = useState<any[]>([]);
   const [drawingEnabled, setDrawingEnabled] = useState<boolean>(false);
-  const [downloadLink, setDownloadLink] = useState<string | null>(null);
+  const [zipDownloadLink, setZipDownloadLink] = useState<string | null>(null); // Para el ZIP
 
+  // Función para cargar la imagen
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -21,34 +22,38 @@ const ExtactSingle = () => {
       img.src = URL.createObjectURL(file);
       img.onload = () => {
         setImage(img);
-        setImageFile(file); // Guarda el archivo de la imagen para enviarlo más tarde
+        setImageFile(file);
         const canvas = canvasRef.current;
         if (canvas) {
-          canvas.width = 800; // Fijo el ancho del canvas
-          canvas.height = (800 * img.height) / img.width; // Mantener la proporción de la imagen
+          // Ajusta el tamaño del canvas según la imagen cargada
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const context = canvas.getContext("2d");
+          if (context) {
+            // Dibuja la imagen cargada en el canvas
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(img, 0, 0, canvas.width, canvas.height);
+          }
         }
       };
     }
   };
 
+  // Función para manejar el clic en el canvas
   const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!drawingEnabled) return;
+    if (!drawingEnabled || !image) return;
 
     const canvas = canvasRef.current;
-    if (!canvas || !image) return;
+    if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
 
-    // Ajuste de coordenadas
+    // Ajustar las coordenadas del clic según el tamaño del canvas e imagen
     const scaleX = canvas.width / image.width;
     const scaleY = canvas.height / image.height;
 
-    const x = Math.round(
-      (event.clientX - rect.left) * (image.width / canvas.width),
-    );
-    const y = Math.round(
-      (event.clientY - rect.top) * (image.height / canvas.height),
-    );
+    const x = Math.round((event.clientX - rect.left) / scaleX);
+    const y = Math.round((event.clientY - rect.top) / scaleY);
 
     const newCoords = [...currentCoords, { x, y }];
     setCurrentCoords(newCoords);
@@ -56,41 +61,37 @@ const ExtactSingle = () => {
     if (newCoords.length === 2) {
       drawRectangle(newCoords[0], { x, y });
       promptForAnnotation(newCoords[0].x, newCoords[0].y, x, y);
+      setCurrentCoords([]); // Resetea las coordenadas después de cada anotación
     }
   };
 
+  // Función para dibujar un rectángulo en el canvas
   const drawRectangle = (
     start: { x: number; y: number },
     end: { x: number; y: number },
   ) => {
     const canvas = canvasRef.current;
-    const context = canvas?.getContext("2d");
-    if (context && image) {
+    if (!canvas || !image) return;
+
+    const context = canvas.getContext("2d");
+    if (context) {
       const width = end.x - start.x;
       const height = end.y - start.y;
 
-      context.clearRect(0, 0, canvas.width, canvas.height); // Limpia el canvas antes de dibujar
-      context.drawImage(image, 0, 0, canvas.width, canvas.height); // Redibuja la imagen
+      // Limpiar el canvas y redibujar la imagen para evitar que los rectángulos previos se queden
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-      context.fillStyle = "rgba(173, 216, 230, 0.5)";
-      context.fillRect(
-        start.x * (canvas.width / image.width),
-        start.y * (canvas.height / image.height),
-        width * (canvas.width / image.width),
-        height * (canvas.height / image.height),
-      );
-
-      context.strokeStyle = "#00BFFF";
+      // Dibujar el rectángulo
+      context.fillStyle = "rgba(173, 216, 230, 0.5)"; // Color semitransparente
+      context.fillRect(start.x, start.y, width, height);
+      context.strokeStyle = "#00BFFF"; // Borde del rectángulo
       context.lineWidth = 2;
-      context.strokeRect(
-        start.x * (canvas.width / image.width),
-        start.y * (canvas.height / image.height),
-        width * (canvas.width / image.width),
-        height * (canvas.height / image.height),
-      );
+      context.strokeRect(start.x, start.y, width, height);
     }
   };
 
+  // Función para mostrar un popup y solicitar la etiqueta de anotación
   const promptForAnnotation = (
     x1: number,
     y1: number,
@@ -125,25 +126,11 @@ const ExtactSingle = () => {
           result.value.name,
         ];
         setAnnotations((prev) => [...prev, newAnnotation]);
-        setCurrentCoords([]); // Resetea las coordenadas después de cada anotación
       }
     });
   };
 
-  const createDownloadableFile = (data: any, type: "txt" | "csv") => {
-    // Convertimos el objeto JSON a un formato de texto
-    const content =
-      type === "txt"
-        ? JSON.stringify(data, null, 2)
-        : data.map((ann: any) => ann.join(",")).join("\n");
-
-    // Creamos un blob (archivo en memoria) con los datos
-    const blob = new Blob([content], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-
-    setDownloadLink(url);
-  };
-
+  // Función para enviar las anotaciones a la API
   const sendAnnotationsToAPI = async () => {
     if (!imageFile) {
       console.error("No image file available to send.");
@@ -151,8 +138,6 @@ const ExtactSingle = () => {
     }
 
     const formData = new FormData();
-
-    // Agrega la imagen y las anotaciones al FormData
     formData.append("template_image", imageFile);
     formData.append("roi_array", JSON.stringify(annotations));
 
@@ -166,10 +151,9 @@ const ExtactSingle = () => {
       );
 
       if (response.ok) {
-        const result = await response.json();
-
-        // Crear el archivo descargable con el resultado de la API
-        createDownloadableFile(result, "txt"); // Cambia a 'csv' si lo prefieres en CSV
+        const blob = await response.blob();
+        const zipUrl = URL.createObjectURL(blob);
+        setZipDownloadLink(zipUrl); // Configuramos el enlace para descargar el ZIP
       } else {
         console.error("Error en la respuesta de la API", response.statusText);
       }
@@ -194,24 +178,8 @@ const ExtactSingle = () => {
     setAnnotations([]);
     setDrawingEnabled(false); // Desactiva el modo de dibujo
     document.body.style.cursor = "default"; // Restablece el cursor
-    setDownloadLink(null); // Limpia el enlace de descarga
+    setZipDownloadLink(null); // Limpia el enlace del ZIP
   };
-
-  // Dibuja en el canvas cuando hay cambios en la imagen o las anotaciones
-  React.useEffect(() => {
-    const canvas = canvasRef.current;
-    const context = canvas?.getContext("2d");
-    if (context && image) {
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(image, 0, 0, canvas.width, canvas.height); // Mantener el tamaño fijo de la imagen
-
-      // Redibuja todas las anotaciones previas
-      annotations.forEach((annotation) => {
-        const [[x1, y1], [x2, y2]] = annotation;
-        drawRectangle({ x: x1, y: y1 }, { x: x2, y: y2 });
-      });
-    }
-  }, [image, annotations]);
 
   return (
     <>
@@ -282,15 +250,15 @@ const ExtactSingle = () => {
           ></canvas>
         </div>
 
-        {/* Columna derecha para el enlace de descarga */}
+        {/* Columna derecha para el enlace de descarga ZIP */}
         <div className={styles.rightColumn}>
-          <h2>Descargar Resultado</h2>
-          {downloadLink ? (
-            <a href={downloadLink} download="resultado.txt">
-              Haz clic aquí para descargar el archivo de resultado
-            </a>
-          ) : (
-            <p>No se ha generado ningún archivo aún.</p>
+          <h2>Resultados</h2>
+          {zipDownloadLink && (
+            <div className={styles.downloadContainer}>
+              <a href={zipDownloadLink} download="resultados.zip">
+                <i className="fas fa-download"></i> Descargar Resultados (.zip)
+              </a>
+            </div>
           )}
         </div>
       </div>
