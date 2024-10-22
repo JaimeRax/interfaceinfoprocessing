@@ -6,10 +6,12 @@ import Navbar from "../components/Navbar";
 const ExtactSingle = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [currentCoords, setCurrentCoords] = useState<
     { x: number; y: number }[]
   >([]);
-  const [annotations, setAnnotations] = useState<any[]>([]);
+  const [annotations, setAnnotations] = useState<any[]>([]); // Almacena todas las anotaciones
+  const [apiResult, setApiResult] = useState<string | null>(null);
   const [drawingEnabled, setDrawingEnabled] = useState<boolean>(false);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -19,6 +21,7 @@ const ExtactSingle = () => {
       img.src = URL.createObjectURL(file);
       img.onload = () => {
         setImage(img);
+        setImageFile(file); // Guarda el archivo de la imagen para enviarlo más tarde
         const canvas = canvasRef.current;
         if (canvas) {
           canvas.width = 800; // Fijo el ancho del canvas
@@ -36,11 +39,10 @@ const ExtactSingle = () => {
 
     const rect = canvas.getBoundingClientRect();
 
-    // Ajustar las coordenadas del clic teniendo en cuenta el tamaño del canvas y la imagen
+    // Ajuste de coordenadas
     const scaleX = canvas.width / image.width;
     const scaleY = canvas.height / image.height;
 
-    // Coordenadas del clic en el canvas (ajustadas por el tamaño del canvas y la imagen)
     const x = Math.round(
       (event.clientX - rect.left) * (image.width / canvas.width),
     );
@@ -63,15 +65,12 @@ const ExtactSingle = () => {
   ) => {
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
-    if (context) {
+    if (context && image) {
       const width = end.x - start.x;
       const height = end.y - start.y;
 
-      // Dibuja el rectángulo semitransparente
       context.clearRect(0, 0, canvas.width, canvas.height); // Limpia el canvas antes de dibujar
-      if (image) {
-        context.drawImage(image, 0, 0, canvas.width, canvas.height); // Redibuja la imagen
-      }
+      context.drawImage(image, 0, 0, canvas.width, canvas.height); // Redibuja la imagen
 
       context.fillStyle = "rgba(173, 216, 230, 0.5)";
       context.fillRect(
@@ -81,7 +80,6 @@ const ExtactSingle = () => {
         height * (canvas.height / image.height),
       );
 
-      // Dibuja el borde del rectángulo
       context.strokeStyle = "#00BFFF";
       context.lineWidth = 2;
       context.strokeRect(
@@ -132,18 +130,37 @@ const ExtactSingle = () => {
     });
   };
 
-  const drawCanvas = () => {
-    const canvas = canvasRef.current;
-    const context = canvas?.getContext("2d");
-    if (context && image) {
-      context.clearRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(image, 0, 0, canvas.width, canvas.height); // Mantener el tamaño fijo de la imagen
+  const sendAnnotationsToAPI = async () => {
+    if (!imageFile) {
+      console.error("No image file available to send.");
+      return;
+    }
 
-      // Dibuja las anotaciones previas
-      annotations.forEach((annotation) => {
-        const [[x1, y1], [x2, y2]] = annotation;
-        drawRectangle({ x: x1, y: y1 }, { x: x2, y: y2 });
-      });
+    const formData = new FormData();
+
+    // Agrega la imagen y las anotaciones al FormData
+    formData.append("template_image", imageFile);
+    formData.append("roi_array", JSON.stringify(annotations));
+
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:5001/api/lectorDPI/extract_single",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
+
+      if (response.ok) {
+        const result = await response.json();
+        setApiResult(JSON.stringify(result, null, 2)); // Mostrar resultado de la API
+      } else {
+        console.error("Error en la respuesta de la API", response.statusText);
+        setApiResult("Error en la respuesta de la API");
+      }
+    } catch (error) {
+      console.error("Error al enviar los datos a la API", error);
+      setApiResult("Error al enviar los datos a la API");
     }
   };
 
@@ -163,17 +180,23 @@ const ExtactSingle = () => {
     setAnnotations([]);
     setDrawingEnabled(false); // Desactiva el modo de dibujo
     document.body.style.cursor = "default"; // Restablece el cursor
-  };
-
-  const handleCancel = () => {
-    handleRemoveAllAnnotations();
-    setDrawingEnabled(false);
-    document.body.style.cursor = "default"; // Restablece el cursor
+    setApiResult(null); // Limpia el resultado de la API
   };
 
   // Dibuja en el canvas cuando hay cambios en la imagen o las anotaciones
   React.useEffect(() => {
-    drawCanvas();
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
+    if (context && image) {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.drawImage(image, 0, 0, canvas.width, canvas.height); // Mantener el tamaño fijo de la imagen
+
+      // Redibuja todas las anotaciones previas
+      annotations.forEach((annotation) => {
+        const [[x1, y1], [x2, y2]] = annotation;
+        drawRectangle({ x: x1, y: y1 }, { x: x2, y: y2 });
+      });
+    }
   }, [image, annotations]);
 
   return (
@@ -181,7 +204,6 @@ const ExtactSingle = () => {
       <Navbar />
       <div className={styles.mainContainer}>
         <div className={styles.leftColumn}>
-          {/* <h1 className={styles.title}>Extract Data Single</h1> */}
           <input
             type="file"
             accept="image/*"
@@ -205,6 +227,10 @@ const ExtactSingle = () => {
                 3) Selecciona una etiqueta ("text" o "img") y asigna un nombre a
                 cada área seleccionada.
               </li>
+              <li>
+                4) Haz clic en "Enviar" cuando hayas terminado para enviar todas
+                las anotaciones a la API.
+              </li>
             </ol>
           </div>
           <div className={styles.buttonContainer}>
@@ -215,9 +241,6 @@ const ExtactSingle = () => {
             >
               Dibujar
             </button>
-            <button onClick={handleCancel} className={styles.cancelButton}>
-              Cancelar
-            </button>
             <button
               onClick={handleRemoveLastAnnotation}
               className={styles.actionButton}
@@ -226,9 +249,16 @@ const ExtactSingle = () => {
             </button>
             <button
               onClick={handleRemoveAllAnnotations}
-              className={styles.actionButton}
+              className={styles.cancelButton}
             >
-              Eliminar Todo
+              Cancelar
+            </button>
+            <button
+              onClick={sendAnnotationsToAPI}
+              className={styles.actionButton}
+              disabled={annotations.length === 0} // Desactivar si no hay anotaciones
+            >
+              Enviar
             </button>
           </div>
           <canvas
@@ -238,10 +268,10 @@ const ExtactSingle = () => {
           ></canvas>
         </div>
 
-        {/* columna derecha para anotaciones */}
+        {/* Columna derecha para mostrar el resultado de la API */}
         <div className={styles.rightColumn}>
-          <h2>Anotaciones</h2>
-          <pre>{JSON.stringify(annotations, null, 2)}</pre>
+          <h2>Resultado de la API</h2>
+          <pre>{apiResult || "No se ha enviado ninguna solicitud aún."}</pre>
         </div>
       </div>
     </>
