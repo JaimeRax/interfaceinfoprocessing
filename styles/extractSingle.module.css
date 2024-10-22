@@ -1,36 +1,99 @@
-.container {
+.mainContainer {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  justify-content: center;
+  text-align: center;
+  margin-top: 20px;
 }
 
 .title {
-  font-size: 24px;
+  font-size: 34px;
   margin-bottom: 20px;
 }
 
 .fileInput {
-  width: 600px; /* Ancho igual al canvas */
-  padding: 10px;
-  border: 2px solid #ccc;
-  margin-bottom: 20px;
+  width: 900px; 
+  padding: 12px;
+  border: 2px dashed #6c63ff; 
+  border-radius: 8px; 
+  background-color: #f9f9f9;
+  color: #333;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease; 
+}
+
+.fileInput:hover {
+  background-color: #e6e6ff; 
+  border-color: #4c4cff;
+}
+
+.fileInput:active {
+  background-color: #d0d0ff; 
+}
+
+.fileInput::-webkit-file-upload-button {
+  visibility: hidden; 
+}
+
+.fileInput::before {
+  content: "Selecciona una imagen...";
+  display: inline-block;
+  background: #6c63ff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
   cursor: pointer;
 }
 
+.fileInput:hover::before {
+  background-color: #4c4cff; 
+}
+
+.instructions {
+  margin-top: 10px;
+  text-align: left;
+  max-width: 900px;
+  background-color: #e9f6ff;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #6c63ff;
+}
+
 .canvas {
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   margin: 20px 0;
+}
+
+.leftColumn {
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; 
+  text-align: center;
+  margin: 0 auto;
+}
+
+.rightColumn {
+  width: 30%;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-left: 2px solid #ccc;
 }
 
 .buttonContainer {
   margin-top: 10px;
   display: flex;
-  gap: 10px; /* Espacio entre botones */
+  gap: 10px;
 }
 
 .actionButton, .dibujarButton, .cancelButton {
   padding: 10px 20px;
-  background-color: #4CAF50; /* Color verde para los botones */
+  background-color: #4CAF50; 
   color: white;
   border: none;
   border-radius: 5px;
@@ -44,10 +107,10 @@
 }
 
 .cancelButton {
-  background-color: #f44336; /* Color rojo para el botón de cancelar */
+  background-color: #f44336; 
 }
 
 .actionButton {
-  background-color: #f49221; /* Color rojo para el botón de cancelar */
+  background-color: #f49221;
 }
 

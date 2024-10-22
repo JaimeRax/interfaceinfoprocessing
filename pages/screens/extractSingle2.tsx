@@ -29,24 +29,14 @@ const ExtactSingle = () => {
   };
 
   const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!drawingEnabled) return;
+    if (!drawingEnabled) return; // No hace nada si el modo de dibujo está desactivado
 
     const canvas = canvasRef.current;
-    if (!canvas || !image) return;
+    if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-
-    // Ajustar las coordenadas del clic teniendo en cuenta el tamaño del canvas y la imagen
-    const scaleX = canvas.width / image.width;
-    const scaleY = canvas.height / image.height;
-
-    // Coordenadas del clic en el canvas (ajustadas por el tamaño del canvas y la imagen)
-    const x = Math.round(
-      (event.clientX - rect.left) * (image.width / canvas.width),
-    );
-    const y = Math.round(
-      (event.clientY - rect.top) * (image.height / canvas.height),
-    );
+    const x = Math.round(event.clientX - rect.left);
+    const y = Math.round(event.clientY - rect.top);
 
     const newCoords = [...currentCoords, { x, y }];
     setCurrentCoords(newCoords);
@@ -68,28 +58,13 @@ const ExtactSingle = () => {
       const height = end.y - start.y;
 
       // Dibuja el rectángulo semitransparente
-      context.clearRect(0, 0, canvas.width, canvas.height); // Limpia el canvas antes de dibujar
-      if (image) {
-        context.drawImage(image, 0, 0, canvas.width, canvas.height); // Redibuja la imagen
-      }
-
-      context.fillStyle = "rgba(173, 216, 230, 0.5)";
-      context.fillRect(
-        start.x * (canvas.width / image.width),
-        start.y * (canvas.height / image.height),
-        width * (canvas.width / image.width),
-        height * (canvas.height / image.height),
-      );
+      context.fillStyle = "rgba(173, 216, 230, 0.5)"; // Color celeste claro semitransparente
+      context.fillRect(start.x, start.y, width, height);
 
       // Dibuja el borde del rectángulo
-      context.strokeStyle = "#00BFFF";
+      context.strokeStyle = "#00BFFF"; // Color celeste más oscuro para el borde
       context.lineWidth = 2;
-      context.strokeRect(
-        start.x * (canvas.width / image.width),
-        start.y * (canvas.height / image.height),
-        width * (canvas.width / image.width),
-        height * (canvas.height / image.height),
-      );
+      context.strokeRect(start.x, start.y, width, height);
     }
   };
 
