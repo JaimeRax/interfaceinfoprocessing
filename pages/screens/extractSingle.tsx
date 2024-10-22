@@ -21,6 +21,8 @@ const ExtactSingle = () => {
     send: false,
   }); // Manejo del estado de los botones
 
+  const [isLoading, setIsLoading] = useState<boolean>(false); // Estado para el modal de carga
+
   // Función para cargar la imagen y habilitar el botón de dibujar
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -149,6 +151,7 @@ const ExtactSingle = () => {
       return;
     }
 
+    setIsLoading(true); // Mostrar modal de carga
     const formData = new FormData();
     formData.append("template_image", imageFile);
     formData.append("roi_array", JSON.stringify(annotations));
@@ -167,11 +170,14 @@ const ExtactSingle = () => {
         const zipUrl = URL.createObjectURL(blob);
         setZipDownloadLink(zipUrl); // Configuramos el enlace para descargar el ZIP
         document.body.style.cursor = "default"; // Devuelve el cursor a normal
+        setIsLoading(false);
       } else {
         console.error("Error en la respuesta de la API", response.statusText);
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("Error al enviar los datos a la API", error);
+      setIsLoading(false);
     }
   };
 
@@ -330,6 +336,14 @@ const ExtactSingle = () => {
           </button>
         </div>
       </div>
+
+      {/* Modal de carga */}
+      {isLoading && (
+        <div className={styles.loadingModal}>
+          <div className={styles.spinner}></div>
+          <p>Enviando datos... por favor espera.</p>
+        </div>
+      )}
     </>
   );
 };
