@@ -12,9 +12,16 @@ const ExtactSingle = () => {
   >([]);
   const [annotations, setAnnotations] = useState<any[]>([]);
   const [drawingEnabled, setDrawingEnabled] = useState<boolean>(false);
-  const [zipDownloadLink, setZipDownloadLink] = useState<string | null>(null); // Para el ZIP
+  const [zipDownloadLink, setZipDownloadLink] = useState<string | null>(null);
+  const [labelList, setLabelList] = useState<any[]>([]); // Para la lista de etiquetas
+  const [buttonsEnabled, setButtonsEnabled] = useState({
+    draw: false,
+    cancel: false,
+    remove: false,
+    send: false,
+  }); // Manejo del estado de los botones
 
-  // Función para cargar la imagen
+  // Función para cargar la imagen y habilitar el botón de dibujar
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -23,6 +30,7 @@ const ExtactSingle = () => {
       img.onload = () => {
         setImage(img);
         setImageFile(file);
+        setButtonsEnabled({ ...buttonsEnabled, draw: true }); // Habilita el botón dibujar
         const canvas = canvasRef.current;
         if (canvas) {
           // Ajusta el tamaño del canvas según la imagen cargada
@@ -126,6 +134,10 @@ const ExtactSingle = () => {
           result.value.name,
         ];
         setAnnotations((prev) => [...prev, newAnnotation]);
+        setLabelList((prev) => [
+          ...prev,
+          { label: result.value.label, name: result.value.name },
+        ]); // Agrega a la lista de etiquetas
       }
     });
   };
@@ -154,6 +166,7 @@ const ExtactSingle = () => {
         const blob = await response.blob();
         const zipUrl = URL.createObjectURL(blob);
         setZipDownloadLink(zipUrl); // Configuramos el enlace para descargar el ZIP
+        document.body.style.cursor = "default"; // Devuelve el cursor a normal
       } else {
         console.error("Error en la respuesta de la API", response.statusText);
       }
@@ -164,21 +177,50 @@ const ExtactSingle = () => {
 
   const handleDibujarClick = () => {
     setDrawingEnabled(true); // Activa el modo de dibujo
+    setButtonsEnabled({ draw: false, cancel: true, remove: true, send: true }); // Habilita los botones y desactiva dibujar
     document.body.style.cursor = "crosshair"; // Cambia el cursor a "lápiz"
   };
 
   const handleRemoveLastAnnotation = () => {
     setAnnotations((prev) => {
       const newAnnotations = prev.slice(0, -1);
+      setLabelList((prev) => prev.slice(0, -1)); // Actualiza la lista de etiquetas
       return newAnnotations;
     });
   };
 
   const handleRemoveAllAnnotations = () => {
     setAnnotations([]);
+    setLabelList([]);
     setDrawingEnabled(false); // Desactiva el modo de dibujo
     document.body.style.cursor = "default"; // Restablece el cursor
     setZipDownloadLink(null); // Limpia el enlace del ZIP
+    setButtonsEnabled({
+      draw: true,
+      cancel: false,
+      remove: false,
+      send: false,
+    }); // Restablece los botones
+  };
+
+  const handleReset = () => {
+    setImage(null);
+    setImageFile(null);
+    setAnnotations([]);
+    setLabelList([]);
+    setZipDownloadLink(null);
+    setDrawingEnabled(false);
+    setButtonsEnabled({
+      draw: false,
+      cancel: false,
+      remove: false,
+      send: false,
+    });
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const context = canvas.getContext("2d");
+      context?.clearRect(0, 0, canvas.width, canvas.height); // Limpia el canvas
+    }
   };
 
   return (
@@ -197,48 +239,52 @@ const ExtactSingle = () => {
               <strong>Instrucciones</strong>
             </h3>
             <ol>
+              <li>1) Carga una imagen para activar el botón "Dibujar".</li>
               <li>
-                1) Haz clic en "Dibujar" para habilitar el modo de dibujo.
+                2) Haz clic en "Dibujar" para habilitar el modo de dibujo.
               </li>
               <li>
-                2) Haz clic en la imagen para marcar el primer punto (esquina
+                3) Haz clic en la imagen para marcar el primer punto (esquina
                 superior izquierda) y el segundo punto (esquina inferior
                 derecha).
               </li>
               <li>
-                3) Selecciona una etiqueta ("text" o "img") y asigna un nombre a
+                4) Selecciona una etiqueta ("text" o "img") y asigna un nombre a
                 cada área seleccionada.
               </li>
               <li>
-                4) Haz clic en "Enviar" cuando hayas terminado para enviar todas
+                5) Haz clic en "Enviar" cuando hayas terminado para enviar todas
                 las anotaciones a la API.
               </li>
             </ol>
           </div>
+
           <div className={styles.buttonContainer}>
             <button
               onClick={handleDibujarClick}
               className={styles.dibujarButton}
-              disabled={drawingEnabled}
+              disabled={!buttonsEnabled.draw} // Desactivar si no está habilitado
             >
               Dibujar
             </button>
             <button
               onClick={handleRemoveLastAnnotation}
               className={styles.actionButton}
+              disabled={!buttonsEnabled.remove} // Desactivar si no está habilitado
             >
               Eliminar Etiqueta
             </button>
             <button
               onClick={handleRemoveAllAnnotations}
               className={styles.cancelButton}
+              disabled={!buttonsEnabled.cancel} // Desactivar si no está habilitado
             >
               Cancelar
             </button>
             <button
               onClick={sendAnnotationsToAPI}
-              className={styles.actionButton}
-              disabled={annotations.length === 0} // Desactivar si no hay anotaciones
+              className={styles.sendButton}
+              disabled={!buttonsEnabled.send} // Desactivar si no está habilitado
             >
               Enviar
             </button>
@@ -252,14 +298,36 @@ const ExtactSingle = () => {
 
         {/* Columna derecha para el enlace de descarga ZIP */}
         <div className={styles.rightColumn}>
-          <h2>Resultados</h2>
+          {/* Lista de etiquetas seleccionadas */}
+          {labelList.length > 0 && (
+            <div className={styles.labelList}>
+              <h4 className={styles.title}>Etiquetas:</h4>
+              <ul>
+                {labelList.map((item, index) => (
+                  <li key={index}>
+                    {item.label}: {item.name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <h2 className={styles.title}>Resultados</h2>
           {zipDownloadLink && (
             <div className={styles.downloadContainer}>
-              <a href={zipDownloadLink} download="resultados.zip">
-                <i className="fas fa-download"></i> Descargar Resultados (.zip)
+              <a href={zipDownloadLink} download="imagenes_y_datos.zip">
+                <i className="fas fa-download"></i> Descargar ZIP (Imágenes +
+                Datos)
               </a>
             </div>
           )}
+
+          <br />
+          <br />
+          {/* Botón de nueva extracción */}
+          <button className={styles.resetButton} onClick={handleReset}>
+            Nueva Extracción
+          </button>
         </div>
       </div>
     </>

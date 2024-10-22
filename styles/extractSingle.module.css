@@ -12,7 +12,7 @@
 }
 
 .fileInput {
-  width: 900px; 
+  width: 85%; 
   padding: 12px;
   border: 2px dashed #6c63ff; 
   border-radius: 8px; 
@@ -56,7 +56,7 @@
 .instructions {
   margin-top: 10px;
   text-align: left;
-  max-width: 900px;
+  width: 85%;
   background-color: #e9f6ff;
   padding: 10px;
   border-radius: 8px;
@@ -117,6 +117,25 @@
   font-size: 18px;
 }
 
+
+.labelList {
+  margin-bottom: 20px;
+  background-color: #e9f6ff;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #6c63ff;
+}
+
+.labelList ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.labelList li {
+  margin: 2px 0;
+  text-align: left;
+}
+
 .jsonResult {
   background-color: #f9f9f9;
   padding: 15px;
@@ -126,7 +145,7 @@
   white-space: pre-wrap;
 }
 
-.actionButton, .dibujarButton, .cancelButton, .sendButton {
+.actionButton, .dibujarButton, .cancelButton, .sendButton, .resetButton{
   padding: 10px 20px;
   background-color: #4CAF50; 
   color: white;
@@ -136,9 +155,18 @@
   font-weight: bold;  
 }
 
-.dibujarButton:disabled {
+.dibujarButton:disabled,.actionButton:disabled,
+.cancelButton:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+.resetButton {
+  background-color: #ff6347;
+}
+
+.resetButton:hover {
+  background-color: #ff4500;
 }
 
 .cancelButton {
@@ -152,3 +180,4 @@
 .sendButton {
   background-color: #4C8CF2;
 }
+
