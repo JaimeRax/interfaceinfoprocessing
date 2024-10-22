@@ -22,6 +22,7 @@ const ExtactSingle = () => {
   }); // Manejo del estado de los botones
 
   const [isLoading, setIsLoading] = useState<boolean>(false); // Estado para el modal de carga
+  const [showNewExtraction, setShowNewExtraction] = useState<boolean>(false); // Controla la visibilidad del botón de "Nueva Extracción"
 
   // Función para cargar la imagen y habilitar el botón de dibujar
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,6 +172,7 @@ const ExtactSingle = () => {
         setZipDownloadLink(zipUrl); // Configuramos el enlace para descargar el ZIP
         document.body.style.cursor = "default"; // Devuelve el cursor a normal
         setIsLoading(false);
+        setShowNewExtraction(true); // Mostrar botón de Nueva Extracción
       } else {
         console.error("Error en la respuesta de la API", response.statusText);
         setIsLoading(false);
@@ -222,10 +224,19 @@ const ExtactSingle = () => {
       remove: false,
       send: false,
     });
+    setShowNewExtraction(false); // Ocultar botón de Nueva Extracción
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) {
+      (fileInput as HTMLInputElement).value = "";
+    }
+
+    // Limpiar el canvas
     const canvas = canvasRef.current;
     if (canvas) {
       const context = canvas.getContext("2d");
-      context?.clearRect(0, 0, canvas.width, canvas.height); // Limpia el canvas
+      if (context) {
+        context.clearRect(0, 0, canvas.width, canvas.height); // Limpia el canvas
+      }
     }
   };
 
@@ -331,9 +342,11 @@ const ExtactSingle = () => {
           <br />
           <br />
           {/* Botón de nueva extracción */}
-          <button className={styles.resetButton} onClick={handleReset}>
-            Nueva Extracción
-          </button>
+          {showNewExtraction && (
+            <button className={styles.resetButton} onClick={handleReset}>
+              Nueva Extracción
+            </button>
+          )}
         </div>
       </div>
 
