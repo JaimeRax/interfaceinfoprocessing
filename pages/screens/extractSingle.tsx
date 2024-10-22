@@ -227,10 +227,7 @@ const ExtactSingle = () => {
                 3) Selecciona una etiqueta ("text" o "img") y asigna un nombre a
                 cada área seleccionada.
               </li>
-              <li>
-                4) Haz clic en "Enviar" cuando hayas terminado para enviar todas
-                las anotaciones a la API.
-              </li>
+              <li>4) Haz clic en "Enviar" cuando hayas terminado.</li>
             </ol>
           </div>
           <div className={styles.buttonContainer}>
@@ -255,7 +252,7 @@ const ExtactSingle = () => {
             </button>
             <button
               onClick={sendAnnotationsToAPI}
-              className={styles.actionButton}
+              className={styles.sendButton}
               disabled={annotations.length === 0} // Desactivar si no hay anotaciones
             >
               Enviar
