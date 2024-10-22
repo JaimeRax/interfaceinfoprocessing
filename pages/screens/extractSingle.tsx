@@ -10,9 +10,9 @@ const ExtactSingle = () => {
   const [currentCoords, setCurrentCoords] = useState<
     { x: number; y: number }[]
   >([]);
-  const [annotations, setAnnotations] = useState<any[]>([]); // Almacena todas las anotaciones
-  const [apiResult, setApiResult] = useState<string | null>(null);
+  const [annotations, setAnnotations] = useState<any[]>([]);
   const [drawingEnabled, setDrawingEnabled] = useState<boolean>(false);
+  const [downloadLink, setDownloadLink] = useState<string | null>(null);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -130,6 +130,20 @@ const ExtactSingle = () => {
     });
   };
 
+  const createDownloadableFile = (data: any, type: "txt" | "csv") => {
+    // Convertimos el objeto JSON a un formato de texto
+    const content =
+      type === "txt"
+        ? JSON.stringify(data, null, 2)
+        : data.map((ann: any) => ann.join(",")).join("\n");
+
+    // Creamos un blob (archivo en memoria) con los datos
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+
+    setDownloadLink(url);
+  };
+
   const sendAnnotationsToAPI = async () => {
     if (!imageFile) {
       console.error("No image file available to send.");
@@ -153,14 +167,14 @@ const ExtactSingle = () => {
 
       if (response.ok) {
         const result = await response.json();
-        setApiResult(JSON.stringify(result, null, 2)); // Mostrar resultado de la API
+
+        // Crear el archivo descargable con el resultado de la API
+        createDownloadableFile(result, "txt"); // Cambia a 'csv' si lo prefieres en CSV
       } else {
         console.error("Error en la respuesta de la API", response.statusText);
-        setApiResult("Error en la respuesta de la API");
       }
     } catch (error) {
       console.error("Error al enviar los datos a la API", error);
-      setApiResult("Error al enviar los datos a la API");
     }
   };
 
@@ -180,7 +194,7 @@ const ExtactSingle = () => {
     setAnnotations([]);
     setDrawingEnabled(false); // Desactiva el modo de dibujo
     document.body.style.cursor = "default"; // Restablece el cursor
-    setApiResult(null); // Limpia el resultado de la API
+    setDownloadLink(null); // Limpia el enlace de descarga
   };
 
   // Dibuja en el canvas cuando hay cambios en la imagen o las anotaciones
@@ -227,7 +241,10 @@ const ExtactSingle = () => {
                 3) Selecciona una etiqueta ("text" o "img") y asigna un nombre a
                 cada área seleccionada.
               </li>
-              <li>4) Haz clic en "Enviar" cuando hayas terminado.</li>
+              <li>
+                4) Haz clic en "Enviar" cuando hayas terminado para enviar todas
+                las anotaciones a la API.
+              </li>
             </ol>
           </div>
           <div className={styles.buttonContainer}>
@@ -252,7 +269,7 @@ const ExtactSingle = () => {
             </button>
             <button
               onClick={sendAnnotationsToAPI}
-              className={styles.sendButton}
+              className={styles.actionButton}
               disabled={annotations.length === 0} // Desactivar si no hay anotaciones
             >
               Enviar
@@ -265,10 +282,16 @@ const ExtactSingle = () => {
           ></canvas>
         </div>
 
-        {/* Columna derecha para mostrar el resultado de la API */}
+        {/* Columna derecha para el enlace de descarga */}
         <div className={styles.rightColumn}>
-          <h2>Resultado de la API</h2>
-          <pre>{apiResult || "No se ha enviado ninguna solicitud aún."}</pre>
+          <h2>Descargar Resultado</h2>
+          {downloadLink ? (
+            <a href={downloadLink} download="resultado.txt">
+              Haz clic aquí para descargar el archivo de resultado
+            </a>
+          ) : (
+            <p>No se ha generado ningún archivo aún.</p>
+          )}
         </div>
       </div>
     </>
