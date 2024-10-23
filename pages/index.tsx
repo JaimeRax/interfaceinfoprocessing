@@ -1,12 +1,14 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 
-function index() {
+function Index() {
   const router = useRouter();
 
   useEffect(() => {
-    // Redirige al usuario a la página de inicio de sesión
-    router.push("/login");
+    if (router) {
+      // Redirige al usuario a la página de inicio de sesión
+      router.push("/login");
+    }
   }, [router]);
 
   return (
@@ -16,4 +18,4 @@ function index() {
   );
 }
 
-export default index;
+export default Index;
