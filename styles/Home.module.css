@@ -4,54 +4,117 @@
   min-height: 100vh;
 }
 
-.navbar {
+.mainContent {
   display: flex;
   justify-content: space-between;
-  padding: 10px 20px;
-  background-color: #333;
-  color: white;
+  padding: 10px;
+  gap: 10px; /* Espacio entre leftSection y rightSection */
 }
 
-.logo {
-  font-size: 24px;
-}
-
-.menu {
+.foot {
   display: flex;
-  gap: 20px;
+  justify-content: space-between;
+  padding: 10px;
+  border: 2px solid #666;
+  border-radius: 15px;
+  margin: 10px;
+  background-color: rgba(250, 249, 194, 0.5);
 }
 
-.menuItem {
-  cursor: pointer;
-  color: white;
+/* Sección izquierda: descripción del sistema */
+.leftSection {
+  flex: 1;
+  background-color: rgba(250, 249, 194, 0.5);
+  padding: 20px;
+  text-align: left;
+  border: 2px solid #666;
+  border-radius: 15px;
 }
 
-.welcome {
+.leftSection h1 {
+  font-size: 2rem;
+  color: #333;
   text-align: center;
+}
+
+.leftSection h2 {
+  font-size: 1.5rem;
+  color: #000;
   margin-top: 20px;
 }
 
-.actions {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 40px;
+.leftSection p {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 20px;
 }
 
-.button {
-  padding: 10px 20px;
-  background-color: #0070f3;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+.leftSection ul {
+  list-style-type: disc;
+  padding-left: 20px;
 }
 
-.button:hover {
-  background-color: #005bb5;
+.leftSection ul li {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 10px;
 }
 
-.stats {
+/* Sección derecha: pasos a seguir */
+.rightSection {
+  background-color: rgba(250, 249, 194, 0.5);
+  flex: 1;
+  padding: 20px;
   text-align: center;
-  margin-top: 40px;
+  border: 2px solid #666;
+  border-radius: 15px;
+}
+
+.rightSection h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #444;
+}
+
+.step {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.step img {
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+  width: 350px; /* Tamaño ajustado */
+}
+
+.step h3 {
+  font-size: 1.5rem;
+  color: #333;
+  text-align: left;
+  margin-bottom: 0.5rem;
+}
+
+.step p {
+  font-size: 1rem;
+  text-align: left;
+  color: #666;
+}
+
+.actions {
+  margin-top: 3rem;
+}
+
+/* Sección inferior para las imágenes con pasos */
+
+.stepContainer {
+  text-align: center;
+  align-items: center;
+  background-color: rgba(250, 249, 194, 0.5);
+  margin-left: 50px;
+  margin-right: 50px;
+}
+
+.stepContainer h3{
+  font-weight: bold;
 }
