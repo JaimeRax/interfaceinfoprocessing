@@ -1,3 +1,14 @@
+.homeContainer {
+  background-image: url('../img/fondo.jpg'); 
+  background-size: cover; 
+  background-position: center; 
+  background-repeat: no-repeat;
+  min-height: 100vh; 
+  width: 100%; 
+  display: flex;
+  flex-direction: column;
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -9,16 +20,6 @@
   justify-content: space-between;
   padding: 10px;
   gap: 10px; /* Espacio entre leftSection y rightSection */
-}
-
-.foot {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  border: 2px solid #666;
-  border-radius: 15px;
-  margin: 10px;
-  background-color: rgba(250, 249, 194, 0.5);
 }
 
 /* Sección izquierda: descripción del sistema */
@@ -106,15 +107,45 @@
 }
 
 /* Sección inferior para las imágenes con pasos */
+.foot {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border: 2px solid #666;
+  border-radius: 15px;
+  margin: 10px;
+  background-color: rgba(250, 249, 194, 0.5);
+}
 
 .stepContainer {
   text-align: center;
-  align-items: center;
-  background-color: rgba(250, 249, 194, 0.5);
+  cursor: pointer; /* El cursor cambia cuando pasas el ratón sobre la imagen */
   margin-left: 50px;
   margin-right: 50px;
 }
 
-.stepContainer h3{
-  font-weight: bold;
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Para que el overlay esté encima del contenido */
 }
+
+.zoomedImageContainer {
+  position: relative;
+  width: 90%; /* Ajusta el tamaño de la imagen ampliada */
+  height: 90%;
+}
+
+.zoomedImageContainer img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain; /* Asegura que la imagen mantenga sus proporciones */
+}
+

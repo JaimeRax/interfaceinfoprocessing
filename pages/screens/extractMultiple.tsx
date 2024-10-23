@@ -259,131 +259,133 @@ const ExtractMultiple = () => {
   return (
     <>
       <Navbar />
-      <div className={styles.mainContainer}>
-        <div className={styles.leftColumn}>
-          <div className={styles.fileInputContainer}>
-            {/* Input para la imagen */}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className={styles.fileInput}
-            />
-            {/* Input para el archivo zip */}
-            <input
-              type="file"
-              accept=".zip"
-              onChange={handleZipUpload}
-              className={styles.fileInputZip}
-            />
-          </div>
-          <div className={styles.instructions}>
-            <h3>
-              <strong>Instrucciones</strong>
-            </h3>
-            <ol>
-              <li>1) Carga una imagen para activar el botón "Dibujar".</li>
-              <li>2) Carga un archivo ZIP para subirlo.</li>
-              <li>
-                3) Haz clic en "Dibujar" para habilitar el modo de dibujo.
-              </li>
-              <li>
-                4) Haz clic en la imagen para marcar el primer punto (esquina
-                superior izquierda) y el segundo punto (esquina inferior
-                derecha).
-              </li>
-              <li>
-                5) Selecciona una etiqueta ("text" o "img") y asigna un nombre a
-                cada área seleccionada.
-              </li>
-              <li>
-                6) Haz clic en "Enviar" cuando hayas terminado para enviar todas
-                las anotaciones y el archivo ZIP.
-              </li>
-            </ol>
+      <div className={styles.homeContainer}>
+        <div className={styles.mainContainer}>
+          <div className={styles.leftColumn}>
+            <div className={styles.fileInputContainer}>
+              {/* Input para la imagen */}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className={styles.fileInput}
+              />
+              {/* Input para el archivo zip */}
+              <input
+                type="file"
+                accept=".zip"
+                onChange={handleZipUpload}
+                className={styles.fileInputZip}
+              />
+            </div>
+            <div className={styles.instructions}>
+              <h3>
+                <strong>Instrucciones</strong>
+              </h3>
+              <ol>
+                <li>1) Carga una imagen para activar el botón "Dibujar".</li>
+                <li>2) Carga un archivo ZIP para subirlo.</li>
+                <li>
+                  3) Haz clic en "Dibujar" para habilitar el modo de dibujo.
+                </li>
+                <li>
+                  4) Haz clic en la imagen para marcar el primer punto (esquina
+                  superior izquierda) y el segundo punto (esquina inferior
+                  derecha).
+                </li>
+                <li>
+                  5) Selecciona una etiqueta ("text" o "img") y asigna un nombre
+                  a cada área seleccionada.
+                </li>
+                <li>
+                  6) Haz clic en "Enviar" cuando hayas terminado para enviar
+                  todas las anotaciones y el archivo ZIP.
+                </li>
+              </ol>
+            </div>
+
+            <div className={styles.buttonContainer}>
+              <button
+                onClick={handleDibujarClick}
+                className={styles.dibujarButton}
+                disabled={!buttonsEnabled.draw} // Desactivar si no está habilitado
+              >
+                Dibujar
+              </button>
+              <button
+                onClick={handleRemoveLastAnnotation}
+                className={styles.actionButton}
+                disabled={!buttonsEnabled.remove} // Desactivar si no está habilitado
+              >
+                Eliminar Etiqueta
+              </button>
+              <button
+                onClick={handleRemoveAllAnnotations}
+                className={styles.cancelButton}
+                disabled={!buttonsEnabled.cancel} // Desactivar si no está habilitado
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={sendAnnotationsToAPI}
+                className={styles.sendButton}
+                disabled={!buttonsEnabled.send} // Desactivar si no está habilitado
+              >
+                Enviar
+              </button>
+            </div>
+            <canvas
+              ref={canvasRef}
+              className={styles.canvas}
+              onClick={handleCanvasClick}
+            ></canvas>
           </div>
 
-          <div className={styles.buttonContainer}>
-            <button
-              onClick={handleDibujarClick}
-              className={styles.dibujarButton}
-              disabled={!buttonsEnabled.draw} // Desactivar si no está habilitado
-            >
-              Dibujar
-            </button>
-            <button
-              onClick={handleRemoveLastAnnotation}
-              className={styles.actionButton}
-              disabled={!buttonsEnabled.remove} // Desactivar si no está habilitado
-            >
-              Eliminar Etiqueta
-            </button>
-            <button
-              onClick={handleRemoveAllAnnotations}
-              className={styles.cancelButton}
-              disabled={!buttonsEnabled.cancel} // Desactivar si no está habilitado
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={sendAnnotationsToAPI}
-              className={styles.sendButton}
-              disabled={!buttonsEnabled.send} // Desactivar si no está habilitado
-            >
-              Enviar
-            </button>
+          {/* Columna derecha para el enlace de descarga ZIP */}
+          <div className={styles.rightColumn}>
+            {/* Lista de etiquetas seleccionadas */}
+            {labelList.length > 0 && (
+              <div className={styles.labelList}>
+                <h4 className={styles.title}>Etiquetas:</h4>
+                <ul>
+                  {labelList.map((item, index) => (
+                    <li key={index}>
+                      {item.label}: {item.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <h2 className={styles.title}>Resultados</h2>
+            {zipDownloadLink && (
+              <div className={styles.downloadContainer}>
+                <a href={zipDownloadLink} download="imagenes_y_datos.zip">
+                  <i className="fas fa-download"></i> Descargar ZIP (Imágenes +
+                  Datos)
+                </a>
+              </div>
+            )}
+
+            <br />
+            <br />
+            {/* Botón de nueva extracción */}
+            {showNewExtraction && (
+              <button className={styles.resetButton} onClick={handleReset}>
+                Nueva Extracción
+              </button>
+            )}
           </div>
-          <canvas
-            ref={canvasRef}
-            className={styles.canvas}
-            onClick={handleCanvasClick}
-          ></canvas>
         </div>
 
-        {/* Columna derecha para el enlace de descarga ZIP */}
-        <div className={styles.rightColumn}>
-          {/* Lista de etiquetas seleccionadas */}
-          {labelList.length > 0 && (
-            <div className={styles.labelList}>
-              <h4 className={styles.title}>Etiquetas:</h4>
-              <ul>
-                {labelList.map((item, index) => (
-                  <li key={index}>
-                    {item.label}: {item.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <h2 className={styles.title}>Resultados</h2>
-          {zipDownloadLink && (
-            <div className={styles.downloadContainer}>
-              <a href={zipDownloadLink} download="imagenes_y_datos.zip">
-                <i className="fas fa-download"></i> Descargar ZIP (Imágenes +
-                Datos)
-              </a>
-            </div>
-          )}
-
-          <br />
-          <br />
-          {/* Botón de nueva extracción */}
-          {showNewExtraction && (
-            <button className={styles.resetButton} onClick={handleReset}>
-              Nueva Extracción
-            </button>
-          )}
-        </div>
+        {/* Modal de carga */}
+        {isLoading && (
+          <div className={styles.loadingModal}>
+            <div className={styles.spinner}></div>
+            <p>Enviando datos... por favor espera.</p>
+          </div>
+        )}
       </div>
-
-      {/* Modal de carga */}
-      {isLoading && (
-        <div className={styles.loadingModal}>
-          <div className={styles.spinner}></div>
-          <p>Enviando datos... por favor espera.</p>
-        </div>
-      )}
     </>
   );
 };

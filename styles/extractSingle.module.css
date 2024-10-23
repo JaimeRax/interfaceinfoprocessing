@@ -1,3 +1,17 @@
+.homeContainer {
+  background-image: url('../img/fondo.jpg'); 
+  background-size: cover; 
+  background-position: center; 
+  background-repeat: no-repeat;
+  min-height: 100vh; 
+  width: 100%; 
+  display: flex;
+  flex-direction: column;
+  
+  /* Fondo semitransparente */
+  background-color: rgba(0, 0, 0, 0.5); /* Negro semitransparente */
+}
+
 .mainContainer {
   display: flex;
   flex-direction: row;
@@ -100,6 +114,8 @@
   padding: 20px;
   background-color: #f9f9f9;
   border-left: 2px solid #ccc;
+  margin-right: 40px;
+  margin-bottom: 40px;
 }
 
 .buttonContainer {
