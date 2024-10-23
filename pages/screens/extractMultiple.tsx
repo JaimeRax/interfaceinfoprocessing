@@ -176,7 +176,7 @@ const ExtractMultiple = () => {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:5001/api/lectorDPI/extract_multiple",
+        `${process.env.NEXT_PUBLIC_API_URL_LECTOR}/extract_multiple`,
         {
           method: "POST",
           body: formData,
@@ -227,6 +227,7 @@ const ExtractMultiple = () => {
       send: false,
     }); // Restablece los botones
   };
+
   const handleReset = () => {
     setImage(null);
     setImageFile(null);
@@ -297,7 +298,7 @@ const ExtractMultiple = () => {
               </li>
               <li>
                 6) Haz clic en "Enviar" cuando hayas terminado para enviar todas
-                las anotaciones y el archivo ZIP a la API.
+                las anotaciones y el archivo ZIP.
               </li>
             </ol>
           </div>

@@ -159,7 +159,7 @@ const ExtactSingle = () => {
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:5001/api/lectorDPI/extract_single",
+        `${process.env.NEXT_PUBLIC_API_URL_LECTOR}/extract_single`,
         {
           method: "POST",
           body: formData,
