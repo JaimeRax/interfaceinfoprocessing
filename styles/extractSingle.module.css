@@ -11,8 +11,14 @@
   margin-bottom: 20px;
 }
 
-.fileInput {
-  width: 85%; 
+.fileInputContainer {
+  display: flex;
+  justify-content: space-between; /* Distribuir los inputs en fila */
+  width: 100%; /* Para que ocupe el total del ancho */
+}
+
+.fileInput, .fileInputZip{
+  width: 48%; 
   padding: 12px;
   border: 2px dashed #6c63ff; 
   border-radius: 8px; 
@@ -26,16 +32,16 @@
   transition: all 0.3s ease; 
 }
 
-.fileInput:hover {
+.fileInput:hover, .fileInputZip::hover{
   background-color: #e6e6ff; 
   border-color: #4c4cff;
 }
 
-.fileInput:active {
+.fileInput:active, .fileInputZip::active{
   background-color: #d0d0ff; 
 }
 
-.fileInput::-webkit-file-upload-button {
+.fileInput::-webkit-file-upload-button, .fileInputZip::-webkit-file-upload-button{
   visibility: hidden; 
 }
 
@@ -49,7 +55,17 @@
   cursor: pointer;
 }
 
-.fileInput:hover::before {
+.fileInputZip::before {
+  content: "Subir archivo ZIP";
+  display: inline-block;
+  background: #6c63ff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.fileInput:hover::before, .fileInput:hover::before{
   background-color: #4c4cff; 
 }
 

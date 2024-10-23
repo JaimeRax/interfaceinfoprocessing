@@ -16,13 +16,16 @@ function Register() {
     setSuccess(""); // Resetea el éxito
 
     try {
-      const res = await fetch("http://localhost:5001/api/login/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL_LOGIN}/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
         },
-        body: JSON.stringify({ email, password }),
-      });
+      );
 
       const data = await res.json();
       if (res.status === 201) {

@@ -12,7 +12,7 @@ function Login() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5001/api/login/", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL_LOGIN}/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

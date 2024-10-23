@@ -17,8 +17,11 @@ const Navbar = () => {
         >
           Extracción Simple
         </li>
-        <li className={styles.menuItem} onClick={() => router.push("/menu2")}>
-          Menu 2
+        <li
+          className={styles.menuItem}
+          onClick={() => router.push("/screens/extractMultiple")}
+        >
+          Extracción Multiple
         </li>
         <li className={styles.menuItem} onClick={() => router.push("/login")}>
           Logout
