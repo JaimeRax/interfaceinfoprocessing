@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import Swal from "sweetalert2";
 import styles from "../../styles/extractSingle.module.css";
 import Navbar from "../components/Navbar";
+import axios from "axios";
 
 const ExtactSingle = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -158,25 +159,22 @@ const ExtactSingle = () => {
     formData.append("roi_array", JSON.stringify(annotations));
 
     try {
-      const response = await fetch(
+      const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL_LECTOR}/extract_single`,
+        formData,
         {
-          method: "POST",
-          body: formData,
+          headers: {
+            "Content-Type": "multipart/form-data", // Asegúrate de establecer el tipo de contenido
+          },
         },
       );
 
-      if (response.ok) {
-        const blob = await response.blob();
-        const zipUrl = URL.createObjectURL(blob);
-        setZipDownloadLink(zipUrl); // Configuramos el enlace para descargar el ZIP
-        document.body.style.cursor = "default"; // Devuelve el cursor a normal
-        setIsLoading(false);
-        setShowNewExtraction(true); // Mostrar botón de Nueva Extracción
-      } else {
-        console.error("Error en la respuesta de la API", response.statusText);
-        setIsLoading(false);
-      }
+      // Suponiendo que la respuesta es un blob (archivo ZIP)
+      const zipUrl = URL.createObjectURL(new Blob([response.data]));
+      setZipDownloadLink(zipUrl); // Configuramos el enlace para descargar el ZIP
+      document.body.style.cursor = "default"; // Devuelve el cursor a normal
+      setIsLoading(false);
+      setShowNewExtraction(true); // Mostrar botón de Nueva Extracción
     } catch (error) {
       console.error("Error al enviar los datos a la API", error);
       setIsLoading(false);

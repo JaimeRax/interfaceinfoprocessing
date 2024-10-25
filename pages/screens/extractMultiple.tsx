@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import Swal from "sweetalert2";
 import styles from "../../styles/extractSingle.module.css";
 import Navbar from "../components/Navbar";
+import axios from "axios";
 
 const ExtractMultiple = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -175,31 +176,28 @@ const ExtractMultiple = () => {
     formData.append("zip_file", zipFile); // Enviar el archivo zip
 
     try {
-      const response = await fetch(
+      const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL_LECTOR}/extract_multiple`,
+        formData,
         {
-          method: "POST",
-          body: formData,
+          headers: {
+            "Content-Type": "multipart/form-data", // Asegúrate de establecer el tipo de contenido
+          },
+          responseType: "blob", // Asegura que la respuesta sea tratada como un blob
         },
       );
 
-      if (response.ok) {
-        const blob = await response.blob();
-        const zipUrl = URL.createObjectURL(blob);
-        setZipDownloadLink(zipUrl); // Configuramos el enlace para descargar el ZIP
-        document.body.style.cursor = "default"; // Devuelve el cursor a normal
-        setIsLoading(false);
-        setShowNewExtraction(true); // Mostrar botón de Nueva Extracción
-      } else {
-        console.error("Error en la respuesta de la API", response.statusText);
-        setIsLoading(false);
-      }
+      // Crear un objeto URL para el archivo blob recibido
+      const zipUrl = URL.createObjectURL(response.data);
+      setZipDownloadLink(zipUrl); // Configuramos el enlace para descargar el ZIP
+      document.body.style.cursor = "default"; // Devuelve el cursor a normal
+      setIsLoading(false);
+      setShowNewExtraction(true); // Mostrar botón de Nueva Extracción
     } catch (error) {
       console.error("Error al enviar los datos a la API", error);
       setIsLoading(false);
     }
   };
-
   const handleDibujarClick = () => {
     setDrawingEnabled(true); // Activa el modo de dibujo
     setButtonsEnabled({ draw: false, cancel: true, remove: true, send: true }); // Habilita los botones y desactiva dibujar
