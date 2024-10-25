@@ -159,6 +159,9 @@ const ExtactSingle = () => {
     formData.append("roi_array", JSON.stringify(annotations));
 
     try {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL_LECTOR}/extract_single`;
+
+      console.info("UR: ", apiUrl);
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL_LECTOR}/extract_single`,
         formData,
