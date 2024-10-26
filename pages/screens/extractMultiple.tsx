@@ -176,6 +176,9 @@ const ExtractMultiple = () => {
     formData.append("zip_file", zipFile); // Enviar el archivo zip
 
     try {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL_LECTOR}/extract_multiple`;
+
+      console.info("UR: ", apiUrl);
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL_LECTOR}/extract_multiple`,
         formData,
