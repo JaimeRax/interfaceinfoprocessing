@@ -167,13 +167,15 @@ const ExtactSingle = () => {
         formData,
         {
           headers: {
-            "Content-Type": "multipart/form-data", // Asegúrate de establecer el tipo de contenido
+            "Content-Type": "multipart/form-data",
           },
+          responseType: "blob",
         },
       );
 
-      // Suponiendo que la respuesta es un blob (archivo ZIP)
-      const zipUrl = URL.createObjectURL(new Blob([response.data]));
+      const zipUrl = URL.createObjectURL(
+        new Blob([response.data], { type: "application/zip" }),
+      );
       setZipDownloadLink(zipUrl); // Configuramos el enlace para descargar el ZIP
       document.body.style.cursor = "default"; // Devuelve el cursor a normal
       setIsLoading(false);
