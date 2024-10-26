@@ -186,6 +186,7 @@ const ExtractMultiple = () => {
           headers: {
             "Content-Type": "multipart/form-data", // Asegúrate de establecer el tipo de contenido
           },
+          responseType: "blob",
         },
       );
 
