@@ -186,12 +186,11 @@ const ExtractMultiple = () => {
           headers: {
             "Content-Type": "multipart/form-data", // Asegúrate de establecer el tipo de contenido
           },
-          responseType: "blob", // Asegura que la respuesta sea tratada como un blob
         },
       );
 
       // Crear un objeto URL para el archivo blob recibido
-      const zipUrl = URL.createObjectURL(response.data);
+      const zipUrl = URL.createObjectURL(new Blob([response.data]));
       setZipDownloadLink(zipUrl); // Configuramos el enlace para descargar el ZIP
       document.body.style.cursor = "default"; // Devuelve el cursor a normal
       setIsLoading(false);
@@ -201,6 +200,7 @@ const ExtractMultiple = () => {
       setIsLoading(false);
     }
   };
+
   const handleDibujarClick = () => {
     setDrawingEnabled(true); // Activa el modo de dibujo
     setButtonsEnabled({ draw: false, cancel: true, remove: true, send: true }); // Habilita los botones y desactiva dibujar
