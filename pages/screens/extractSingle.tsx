@@ -192,14 +192,15 @@ const ExtactSingle = () => {
     Swal.fire({
       title: "Etiqueta los puntos",
       html: `
+        <label for="name">Nombre:</label>
+        <input id="name" class="swal2-input" required>
+        <br>
+        <br>
         <label for="label">Etiqueta:</label>
         <select id="label" class="swal2-input">
           <option value="text">text</option>
           <option value="img">img</option>
         </select>
-        <br>
-        <label for="name">Nombre:</label>
-        <input id="name" class="swal2-input" required>
       `,
       preConfirm: () => {
         const label = (document.getElementById("label") as HTMLSelectElement)
@@ -368,9 +369,10 @@ const ExtactSingle = () => {
                   2) Haz clic en "Dibujar" para habilitar el modo de dibujo.
                 </li>
                 <li>
-                  3) Haz clic en la imagen para marcar el primer punto (esquina
-                  superior izquierda) y el segundo punto (esquina inferior
-                  derecha).
+                  3) Haz clic en la imagen para marcar el primer punto, luego
+                  arrastra el cursor hasta el segundo punto para ver el
+                  rectángulo de selección. Haz clic de nuevo para fijar el área
+                  seleccionada.
                 </li>
                 <li>
                   4) Selecciona una etiqueta ("text" o "img") y asigna un nombre

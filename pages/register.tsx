@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import Swal from "sweetalert2";
-import styles from "../styles/Login.module.css";
+import styles from "../styles/Register.module.css";
 
 function Register() {
   const [email, setEmail] = useState("");

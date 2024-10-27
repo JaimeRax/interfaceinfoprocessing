@@ -193,14 +193,15 @@ const ExtractMultiple = () => {
     Swal.fire({
       title: "Etiqueta los puntos",
       html: `
+        <label for="name">Nombre:</label>
+        <input id="name" class="swal2-input" required>
+        <br>
+        <br>
         <label for="label">Etiqueta:</label>
         <select id="label" class="swal2-input">
           <option value="text">text</option>
           <option value="img">img</option>
         </select>
-        <br>
-        <label for="name">Nombre:</label>
-        <input id="name" class="swal2-input required">
       `,
       preConfirm: () => {
         const label = (document.getElementById("label") as HTMLSelectElement)
@@ -252,7 +253,7 @@ const ExtractMultiple = () => {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "Debe cargar una imagen antes de enviar.",
+        text: "Debe cargar un archivo .zip antes de enviar.",
       });
       return;
     }
@@ -387,15 +388,15 @@ const ExtractMultiple = () => {
                 onChange={handleZipUpload}
                 className={styles.fileInputZip}
               />
-              {showResizeButton && (
-                <button
-                  onClick={handleResizeAndDownload}
-                  className={styles.resizeButton}
-                >
-                  Redimensionar Imagen
-                </button>
-              )}
             </div>
+            {showResizeButton && (
+              <button
+                onClick={handleResizeAndDownload}
+                className={styles.resizeButton}
+              >
+                Redimensionar Imagen
+              </button>
+            )}
             <div className={styles.instructions}>
               <h3>
                 <strong>Instrucciones</strong>

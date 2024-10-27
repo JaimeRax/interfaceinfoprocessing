@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  background: linear-gradient(135deg, #a8edea, #ddf363);
+  background: linear-gradient(135deg, #ddf363, #a8edea);
   font-family: Arial, sans-serif;
   padding: 20px;
 }
@@ -19,12 +19,17 @@
   text-align: center;
 }
 
-/* Mensaje de error */
+/* Mensajes de éxito y error */
+.success {
+  color: #28a745;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
 .error {
   color: #dc3545;
   font-size: 1rem;
   margin-bottom: 1rem;
-  text-align: center;
 }
 
 /* Formulario */
@@ -55,7 +60,7 @@
   outline: none;
 }
 
-/* Botón de inicio de sesión */
+/* Botón de registro */
 .button {
   width: 100%;
   padding: 12px;
@@ -73,19 +78,14 @@
   background-color: #0056b3;
 }
 
-/* Sección de registro */
+/* Sección de redirección */
 .register {
   margin-top: 1rem;
   text-align: center;
   color: #555;
 }
 
-.register p {
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-}
-
-.registerButton {
+.register button {
   background-color: #28a745;
   color: white;
   padding: 10px 20px;
@@ -96,7 +96,7 @@
   transition: background-color 0.3s;
 }
 
-.registerButton:hover {
+.register button:hover {
   background-color: #218838;
 }
 
