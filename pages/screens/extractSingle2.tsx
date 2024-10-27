@@ -70,8 +70,6 @@ const ExtactSingle = () => {
     const newCoords = [...currentCoords, { x, y }];
     setCurrentCoords(newCoords);
 
-    drawPoint({ x, y });
-
     if (newCoords.length === 2) {
       drawRectangle(newCoords[0], { x, y });
       promptForAnnotation(newCoords[0].x, newCoords[0].y, x, y);
@@ -79,19 +77,6 @@ const ExtactSingle = () => {
     }
   };
 
-  // Función para dibujar un punto rojo en el canvas
-  const drawPoint = ({ x, y }: { x: number; y: number }) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const context = canvas.getContext("2d");
-    if (context) {
-      context.fillStyle = "#FF0000";
-      context.beginPath();
-      context.arc(x, y, 3, 0, 2 * Math.PI);
-      context.fill();
-    }
-  };
   // Función para dibujar un rectángulo en el canvas
   const drawRectangle = (
     start: { x: number; y: number },
@@ -135,16 +120,13 @@ const ExtactSingle = () => {
         </select>
         <br>
         <label for="name">Nombre:</label>
-        <input id="name" class="swal2-input" required>
+        <input id="name" class="swal2-input">
       `,
       preConfirm: () => {
         const label = (document.getElementById("label") as HTMLSelectElement)
           .value;
         const name = (document.getElementById("name") as HTMLInputElement)
           .value;
-        if (!name) {
-          Swal.showValidationMessage("El nombre es obligatorio");
-        }
         return { label, name };
       },
     }).then((result) => {
@@ -167,19 +149,7 @@ const ExtactSingle = () => {
   // Función para enviar las anotaciones a la API
   const sendAnnotationsToAPI = async () => {
     if (!imageFile) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Debe cargar una imagen antes de enviar.",
-      });
-      return;
-    }
-    if (annotations.length === 0) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "Debe dibujar al menos un área antes de enviar.",
-      });
+      console.error("No image file available to send.");
       return;
     }
 
@@ -189,6 +159,9 @@ const ExtactSingle = () => {
     formData.append("roi_array", JSON.stringify(annotations));
 
     try {
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL_LECTOR}/extract_single`;
+
+      console.info("UR: ", apiUrl);
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL_LECTOR}/extract_single`,
         formData,
@@ -332,7 +305,7 @@ const ExtactSingle = () => {
               <button
                 onClick={sendAnnotationsToAPI}
                 className={styles.sendButton}
-                // disabled={!buttonsEnabled.send} // Desactivar si no está habilitado
+                disabled={!buttonsEnabled.send} // Desactivar si no está habilitado
               >
                 Enviar
               </button>
@@ -341,7 +314,6 @@ const ExtactSingle = () => {
               ref={canvasRef}
               className={styles.canvas}
               onClick={handleCanvasClick}
-              style={{ border: "2px solid #000" }} // Agrega un borde al canvas
             ></canvas>
           </div>
 
