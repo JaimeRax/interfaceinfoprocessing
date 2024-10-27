@@ -8,9 +8,11 @@ const ExtactSingle = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [currentCoords, setCurrentCoords] = useState<
-    { x: number; y: number }[]
-  >([]);
+  const [showResizeButton, setShowResizeButton] = useState<boolean>(false); // Estado para mostrar el botón de redimensionar y descargar
+  const [currentCoords, setCurrentCoords] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const [annotations, setAnnotations] = useState<any[]>([]);
   const [drawingEnabled, setDrawingEnabled] = useState<boolean>(false);
   const [zipDownloadLink, setZipDownloadLink] = useState<string | null>(null);
@@ -19,7 +21,7 @@ const ExtactSingle = () => {
     draw: false,
     cancel: false,
     remove: false,
-    send: false,
+    send: true,
   }); // Manejo del estado de los botones
 
   const [isLoading, setIsLoading] = useState<boolean>(false); // Estado para el modal de carga
@@ -31,10 +33,25 @@ const ExtactSingle = () => {
     if (file) {
       const img = new Image();
       img.src = URL.createObjectURL(file);
+
       img.onload = () => {
+        setImageFile(file);
+        if (img.width > 1200 || img.height > 1200) {
+          Swal.fire({
+            icon: "error",
+            title: "Imagen demasiado grande",
+            text: "La imagen supera el tamaño máximo permitido de 1200px de ancho o alto.",
+          });
+          setShowResizeButton(true); // Mostrar el botón de redimensionar y descargar
+          setImage(null); // No cargar la imagen original en el canvas
+          return; // No continuar si la imagen es demasiado grande
+        }
+
         setImage(img);
         setImageFile(file);
+        setShowResizeButton(false);
         setButtonsEnabled({ ...buttonsEnabled, draw: true }); // Habilita el botón dibujar
+
         const canvas = canvasRef.current;
         if (canvas) {
           // Ajusta el tamaño del canvas según la imagen cargada
@@ -49,6 +66,50 @@ const ExtactSingle = () => {
         }
       };
     }
+  };
+
+  // Función para redimensionar y descargar la imagen si excede los 1200px
+  const handleResizeAndDownload = () => {
+    if (!imageFile) return;
+
+    const img = new Image();
+    img.src = URL.createObjectURL(imageFile);
+
+    img.onload = () => {
+      let newWidth = img.width;
+      let newHeight = img.height;
+
+      if (img.width > img.height && img.width > 1200) {
+        newWidth = 1100;
+        newHeight = (img.height * 1100) / img.width;
+      } else if (img.height > img.width && img.height > 1200) {
+        newHeight = 1100;
+        newWidth = (img.width * 1100) / img.height;
+      }
+
+      // Crear un canvas temporal para redimensionar la imagen
+      const resizeCanvas = document.createElement("canvas");
+      resizeCanvas.width = newWidth;
+      resizeCanvas.height = newHeight;
+      const resizeContext = resizeCanvas.getContext("2d");
+
+      if (resizeContext) {
+        resizeContext.clearRect(0, 0, newWidth, newHeight);
+        resizeContext.drawImage(img, 0, 0, newWidth, newHeight);
+
+        // Convertir el canvas a una URL de datos de imagen
+        const resizedURL = resizeCanvas.toDataURL("image/jpeg", 1.0);
+
+        // Crear un enlace de descarga y simular un clic para descargar la imagen redimensionada
+        const downloadLink = document.createElement("a");
+        downloadLink.href = resizedURL;
+        downloadLink.download = "imagen_redimensionada.jpg";
+        downloadLink.click();
+
+        // Ocultar el botón de redimensionar después de descargar
+        setShowResizeButton(false);
+      }
+    };
   };
 
   // Función para manejar el clic en el canvas
@@ -67,31 +128,17 @@ const ExtactSingle = () => {
     const x = Math.round((event.clientX - rect.left) / scaleX);
     const y = Math.round((event.clientY - rect.top) / scaleY);
 
-    const newCoords = [...currentCoords, { x, y }];
-    setCurrentCoords(newCoords);
-
-    drawPoint({ x, y });
-
-    if (newCoords.length === 2) {
-      drawRectangle(newCoords[0], { x, y });
-      promptForAnnotation(newCoords[0].x, newCoords[0].y, x, y);
-      setCurrentCoords([]); // Resetea las coordenadas después de cada anotación
+    if (!currentCoords) {
+      // Primer clic: establecer el punto de inicio y dibujar el primer punto
+      setCurrentCoords({ x, y });
+    } else {
+      // Segundo clic: finalizar el rectángulo y solicitar la anotación
+      drawRectangle(currentCoords, { x, y });
+      promptForAnnotation(currentCoords.x, currentCoords.y, x, y);
+      setCurrentCoords(null); // Reiniciar el punto de inicio
     }
   };
 
-  // Función para dibujar un punto rojo en el canvas
-  const drawPoint = ({ x, y }: { x: number; y: number }) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const context = canvas.getContext("2d");
-    if (context) {
-      context.fillStyle = "#FF0000";
-      context.beginPath();
-      context.arc(x, y, 3, 0, 2 * Math.PI);
-      context.fill();
-    }
-  };
   // Función para dibujar un rectángulo en el canvas
   const drawRectangle = (
     start: { x: number; y: number },
@@ -116,6 +163,23 @@ const ExtactSingle = () => {
       context.lineWidth = 2;
       context.strokeRect(start.x, start.y, width, height);
     }
+  };
+
+  // Función para dibujar el rectángulo en tiempo real
+  const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!currentCoords || !image) return; // Solo dibujar si hay un punto de inicio
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / image.width;
+    const scaleY = canvas.height / image.height;
+
+    const x = Math.round((event.clientX - rect.left) / scaleX);
+    const y = Math.round((event.clientY - rect.top) / scaleY);
+
+    drawRectangle(currentCoords, { x, y });
   };
 
   // Función para mostrar un popup y solicitar la etiqueta de anotación
@@ -167,6 +231,8 @@ const ExtactSingle = () => {
   // Función para enviar las anotaciones a la API
   const sendAnnotationsToAPI = async () => {
     if (!imageFile) {
+      console.log("No se ha cargado una imagen."); // Verificación en consola
+
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -175,6 +241,8 @@ const ExtactSingle = () => {
       return;
     }
     if (annotations.length === 0) {
+      console.log("No se ha dibujado ninguna area."); // Verificación en consola
+
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -282,6 +350,14 @@ const ExtactSingle = () => {
               onChange={handleImageUpload}
               className={styles.fileInput}
             />
+            {showResizeButton && (
+              <button
+                onClick={handleResizeAndDownload}
+                className={styles.resizeButton}
+              >
+                Redimensionar Imagen
+              </button>
+            )}
             <div className={styles.instructions}>
               <h3>
                 <strong>Instrucciones</strong>
@@ -332,7 +408,7 @@ const ExtactSingle = () => {
               <button
                 onClick={sendAnnotationsToAPI}
                 className={styles.sendButton}
-                // disabled={!buttonsEnabled.send} // Desactivar si no está habilitado
+                disabled={!buttonsEnabled.send} // Desactivar si no está habilitado
               >
                 Enviar
               </button>
@@ -341,6 +417,7 @@ const ExtactSingle = () => {
               ref={canvasRef}
               className={styles.canvas}
               onClick={handleCanvasClick}
+              onMouseMove={handleMouseMove}
               style={{ border: "2px solid #000" }} // Agrega un borde al canvas
             ></canvas>
           </div>
