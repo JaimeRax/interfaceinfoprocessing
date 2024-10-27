@@ -28,22 +28,24 @@ const Home = () => {
               Bienvenido a <strong>extractData</strong>
             </h1>
             <p>
-              extractData es un sistema avanzado que optimiza la extracción de
-              texto e imágenes de tus documentos. Ya sea que necesites extraer
-              información clave de una sola imagen o procesar múltiples
-              archivos, extractData te facilita esta tarea.
+              extract<strong>Data</strong> es un sistema avanzado que optimiza
+              la extracción de texto e imágenes de tus documentos. Ya sea que
+              necesites extraer información clave de una sola imagen o procesar
+              múltiples archivos, extract<strong>Data</strong> te facilita esta
+              tarea.
             </p>
             <h2>Extracción personalizada</h2>
             <p>
               Selecciona áreas específicas en una imagen para extraer texto o
               imágenes. Define exactamente qué partes del documento son
               relevantes y obtén resultados precisos en formato{" "}
-              <strong>TXT</strong> o como recortes de imagen.
+              <strong>TXT</strong>,<strong> JSON</strong> o como recortes de
+              imagen.
             </p>
-            <h2>Extracción masiva con plantillas</h2>
+            <h2>Extracción multiple con plantillas</h2>
             <p>
               Si tienes un conjunto de imágenes similares, puedes utilizar una
-              plantilla para realizar la extracción de manera masiva. Carga un
+              plantilla para realizar la extracción de manera multiple. Carga un
               archivo <strong>ZIP</strong> que contenga múltiples imágenes del
               mismo formato y define en la plantilla la parte que te interesa.
               Esto permite extraer datos de manera eficiente sin tener que

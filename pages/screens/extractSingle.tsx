@@ -424,7 +424,6 @@ const ExtactSingle = () => {
 
           {/* Columna derecha para el enlace de descarga ZIP */}
           <div className={styles.rightColumn}>
-            {/* Lista de etiquetas seleccionadas */}
             {labelList.length > 0 && (
               <div className={styles.labelList}>
                 <h4 className={styles.title}>Etiquetas:</h4>

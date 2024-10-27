@@ -8,10 +8,12 @@ const ExtractMultiple = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [showResizeButton, setShowResizeButton] = useState<boolean>(false); // Estado para mostrar el botón de redimensionar y descargar
   const [zipFile, setZipFile] = useState<File | null>(null); // Estado para el archivo zip
-  const [currentCoords, setCurrentCoords] = useState<
-    { x: number; y: number }[]
-  >([]);
+  const [currentCoords, setCurrentCoords] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const [annotations, setAnnotations] = useState<any[]>([]);
   const [drawingEnabled, setDrawingEnabled] = useState<boolean>(false);
   const [zipDownloadLink, setZipDownloadLink] = useState<string | null>(null);
@@ -20,7 +22,7 @@ const ExtractMultiple = () => {
     draw: false,
     cancel: false,
     remove: false,
-    send: false,
+    send: true,
   }); // Manejo del estado de los botones
 
   const [isLoading, setIsLoading] = useState<boolean>(false); // Estado para el modal de carga
@@ -32,10 +34,25 @@ const ExtractMultiple = () => {
     if (file) {
       const img = new Image();
       img.src = URL.createObjectURL(file);
+
       img.onload = () => {
+        setImageFile(file);
+        if (img.width > 1200 || img.height > 1200) {
+          Swal.fire({
+            icon: "error",
+            title: "Imagen demasiado grande",
+            text: "La imagen supera el tamaño máximo permitido de 1200px de ancho o alto.",
+          });
+          setShowResizeButton(true); // Mostrar el botón de redimensionar y descargar
+          setImage(null); // No cargar la imagen original en el canvas
+          return; // No continuar si la imagen es demasiado grande
+        }
+
         setImage(img);
         setImageFile(file);
+        setShowResizeButton(false);
         setButtonsEnabled({ ...buttonsEnabled, draw: true }); // Habilita el botón dibujar
+
         const canvas = canvasRef.current;
         if (canvas) {
           // Ajusta el tamaño del canvas según la imagen cargada
@@ -50,6 +67,50 @@ const ExtractMultiple = () => {
         }
       };
     }
+  };
+
+  // Función para redimensionar y descargar la imagen si excede los 1200px
+  const handleResizeAndDownload = () => {
+    if (!imageFile) return;
+
+    const img = new Image();
+    img.src = URL.createObjectURL(imageFile);
+
+    img.onload = () => {
+      let newWidth = img.width;
+      let newHeight = img.height;
+
+      if (img.width > img.height && img.width > 1200) {
+        newWidth = 1100;
+        newHeight = (img.height * 1100) / img.width;
+      } else if (img.height > img.width && img.height > 1200) {
+        newHeight = 1100;
+        newWidth = (img.width * 1100) / img.height;
+      }
+
+      // Crear un canvas temporal para redimensionar la imagen
+      const resizeCanvas = document.createElement("canvas");
+      resizeCanvas.width = newWidth;
+      resizeCanvas.height = newHeight;
+      const resizeContext = resizeCanvas.getContext("2d");
+
+      if (resizeContext) {
+        resizeContext.clearRect(0, 0, newWidth, newHeight);
+        resizeContext.drawImage(img, 0, 0, newWidth, newHeight);
+
+        // Convertir el canvas a una URL de datos de imagen
+        const resizedURL = resizeCanvas.toDataURL("image/jpeg", 1.0);
+
+        // Crear un enlace de descarga y simular un clic para descargar la imagen redimensionada
+        const downloadLink = document.createElement("a");
+        downloadLink.href = resizedURL;
+        downloadLink.download = "imagen_redimensionada.jpg";
+        downloadLink.click();
+
+        // Ocultar el botón de redimensionar después de descargar
+        setShowResizeButton(false);
+      }
+    };
   };
 
   // Función para manejar el clic en el canvas
@@ -68,13 +129,14 @@ const ExtractMultiple = () => {
     const x = Math.round((event.clientX - rect.left) / scaleX);
     const y = Math.round((event.clientY - rect.top) / scaleY);
 
-    const newCoords = [...currentCoords, { x, y }];
-    setCurrentCoords(newCoords);
-
-    if (newCoords.length === 2) {
-      drawRectangle(newCoords[0], { x, y });
-      promptForAnnotation(newCoords[0].x, newCoords[0].y, x, y);
-      setCurrentCoords([]); // Resetea las coordenadas después de cada anotación
+    if (!currentCoords) {
+      // Primer clic: establecer el punto de inicio y dibujar el primer punto
+      setCurrentCoords({ x, y });
+    } else {
+      // Segundo clic: finalizar el rectángulo y solicitar la anotación
+      drawRectangle(currentCoords, { x, y });
+      promptForAnnotation(currentCoords.x, currentCoords.y, x, y);
+      setCurrentCoords(null); // Reiniciar el punto de inicio
     }
   };
 
@@ -104,6 +166,23 @@ const ExtractMultiple = () => {
     }
   };
 
+  // Función para dibujar el rectángulo en tiempo real
+  const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!currentCoords || !image) return; // Solo dibujar si hay un punto de inicio
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / image.width;
+    const scaleY = canvas.height / image.height;
+
+    const x = Math.round((event.clientX - rect.left) / scaleX);
+    const y = Math.round((event.clientY - rect.top) / scaleY);
+
+    drawRectangle(currentCoords, { x, y });
+  };
+
   // Función para mostrar un popup y solicitar la etiqueta de anotación
   const promptForAnnotation = (
     x1: number,
@@ -121,13 +200,16 @@ const ExtractMultiple = () => {
         </select>
         <br>
         <label for="name">Nombre:</label>
-        <input id="name" class="swal2-input">
+        <input id="name" class="swal2-input required">
       `,
       preConfirm: () => {
         const label = (document.getElementById("label") as HTMLSelectElement)
           .value;
         const name = (document.getElementById("name") as HTMLInputElement)
           .value;
+        if (!name) {
+          Swal.showValidationMessage("El nombre es obligatorio");
+        }
         return { label, name };
       },
     }).then((result) => {
@@ -164,8 +246,34 @@ const ExtractMultiple = () => {
 
   // Función para enviar las anotaciones a la API (imagen y zip)
   const sendAnnotationsToAPI = async () => {
-    if (!imageFile || !zipFile) {
-      console.error("No image or zip file available to send.");
+    if (!zipFile) {
+      console.log("No se ha cargado una imagen."); // Verificación en consola
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Debe cargar una imagen antes de enviar.",
+      });
+      return;
+    }
+    if (!imageFile) {
+      console.log("No se ha cargado una imagen."); // Verificación en consola
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Debe cargar una imagen antes de enviar.",
+      });
+      return;
+    }
+    if (annotations.length === 0) {
+      console.log("No se ha dibujado ninguna area."); // Verificación en consola
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Debe dibujar al menos un área antes de enviar.",
+      });
       return;
     }
 
@@ -191,7 +299,9 @@ const ExtractMultiple = () => {
       );
 
       // Crear un objeto URL para el archivo blob recibido
-      const zipUrl = URL.createObjectURL(new Blob([response.data]));
+      const zipUrl = URL.createObjectURL(
+        new Blob([response.data], { type: "application/zip" }),
+      );
       setZipDownloadLink(zipUrl); // Configuramos el enlace para descargar el ZIP
       document.body.style.cursor = "default"; // Devuelve el cursor a normal
       setIsLoading(false);
@@ -265,20 +375,26 @@ const ExtractMultiple = () => {
         <div className={styles.mainContainer}>
           <div className={styles.leftColumn}>
             <div className={styles.fileInputContainer}>
-              {/* Input para la imagen */}
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleImageUpload}
                 className={styles.fileInput}
               />
-              {/* Input para el archivo zip */}
               <input
                 type="file"
                 accept=".zip"
                 onChange={handleZipUpload}
                 className={styles.fileInputZip}
               />
+              {showResizeButton && (
+                <button
+                  onClick={handleResizeAndDownload}
+                  className={styles.resizeButton}
+                >
+                  Redimensionar Imagen
+                </button>
+              )}
             </div>
             <div className={styles.instructions}>
               <h3>
@@ -340,12 +456,13 @@ const ExtractMultiple = () => {
               ref={canvasRef}
               className={styles.canvas}
               onClick={handleCanvasClick}
+              onMouseMove={handleMouseMove}
+              style={{ border: "2px solid #000" }} // Agrega un borde al canvas
             ></canvas>
           </div>
 
           {/* Columna derecha para el enlace de descarga ZIP */}
           <div className={styles.rightColumn}>
-            {/* Lista de etiquetas seleccionadas */}
             {labelList.length > 0 && (
               <div className={styles.labelList}>
                 <h4 className={styles.title}>Etiquetas:</h4>

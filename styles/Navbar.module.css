@@ -7,7 +7,7 @@
 }
 
 .logo {
-  font-size: 24px;
+  font-size: 26px;
   cursor: pointer;
 }
 
@@ -18,10 +18,12 @@
 
 .menuItem {
   cursor: pointer;
+  font-size: 20px;
   color: white;
 }
 
-.menuItem:hover {
-  color: #0070f3;
+.menuItem:hover,
+.menuItem.active {
+  color: #8ee3f5;
 }
 

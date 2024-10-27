@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "../../styles/Navbar.module.css";
 
 const Navbar = () => {
   const router = useRouter();
+  const [activeItem, setActiveItem] = useState(router.pathname);
 
   return (
     <nav className={styles.navbar}>
@@ -12,13 +13,17 @@ const Navbar = () => {
       </div>
       <ul className={styles.menu}>
         <li
-          className={styles.menuItem}
+          className={`${styles.menuItem} ${
+            activeItem === "/screens/extractSingle" ? styles.active : ""
+          }`}
           onClick={() => router.push("/screens/extractSingle")}
         >
           Extracción Simple
         </li>
         <li
-          className={styles.menuItem}
+          className={`${styles.menuItem} ${
+            activeItem === "/screens/extractMultiple" ? styles.active : ""
+          }`}
           onClick={() => router.push("/screens/extractMultiple")}
         >
           Extracción Multiple

@@ -106,8 +106,9 @@
 .rightColumn {
   width: 30%;
   padding: 20px;
-  background-color: #f9f9f9;
+  background-color: #eee;
   border-left: 2px solid #ccc;
+  border-radius: 20px;
   margin-right: 40px;
   margin-bottom: 40px;
 }
