@@ -199,6 +199,7 @@ const ExtactSingle = () => {
         <label for="label">Etiqueta:</label>
         <select id="label" class="swal2-input">
           <option value="text">text</option>
+          <option value="parrafo">parrafo</option>
           <option value="img">img</option>
         </select>
       `,
@@ -375,12 +376,16 @@ const ExtactSingle = () => {
                   seleccionada.
                 </li>
                 <li>
-                  4) Selecciona una etiqueta ("text" o "img") y asigna un nombre
-                  a cada área seleccionada.
+                  4) Selecciona una etiqueta ("text", "parrafo" o "img") y
+                  asigna un nombre a cada área seleccionada.
                 </li>
                 <li>
                   5) Haz clic en "Enviar" cuando hayas terminado para enviar
                   todas las anotaciones a la API.
+                </li>
+                <li>
+                  <strong>Nota: </strong> La selección tiene que ser especifica,
+                  selecciona solo fragmentos pequeños.
                 </li>
               </ol>
             </div>

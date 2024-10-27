@@ -200,6 +200,7 @@ const ExtractMultiple = () => {
         <label for="label">Etiqueta:</label>
         <select id="label" class="swal2-input">
           <option value="text">text</option>
+          <option value="parrafo">parrafo</option>
           <option value="img">img</option>
         </select>
       `,
@@ -408,17 +409,22 @@ const ExtractMultiple = () => {
                   3) Haz clic en "Dibujar" para habilitar el modo de dibujo.
                 </li>
                 <li>
-                  4) Haz clic en la imagen para marcar el primer punto (esquina
-                  superior izquierda) y el segundo punto (esquina inferior
-                  derecha).
+                  4) Haz clic en la imagen para marcar el primer punto, luego
+                  arrastra el cursor hasta el segundo punto para ver el
+                  rectángulo de selección. Haz clic de nuevo para fijar el área
+                  seleccionada.
                 </li>
                 <li>
-                  5) Selecciona una etiqueta ("text" o "img") y asigna un nombre
-                  a cada área seleccionada.
+                  5) Selecciona una etiqueta ("text", "parrafo" o "img") y
+                  asigna un nombre a cada área seleccionada.
                 </li>
                 <li>
                   6) Haz clic en "Enviar" cuando hayas terminado para enviar
                   todas las anotaciones y el archivo ZIP.
+                </li>
+                <li>
+                  <strong>Nota: </strong> La selección tiene que ser especifica,
+                  selecciona solo fragmentos pequeños.
                 </li>
               </ol>
             </div>
